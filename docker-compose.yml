@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: chan1100/primefinder:latest
+    ports:
+      - "9001:6000"
+    restart: always
