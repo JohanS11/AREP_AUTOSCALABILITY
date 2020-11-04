@@ -3,7 +3,7 @@
 ## Description
 
   The main goal of this workshop is to introduce AWS autoscaling technique in order to design secure and stable apps. 
-  Ref : https://docs.aws.amazon.com/es_es/autoscaling/ec2/userguide/GettingStartedTutorial.html
+  **Ref**: https://docs.aws.amazon.com/es_es/autoscaling/ec2/userguide/GettingStartedTutorial.html
   For this intro I will use a prime finder app developed in Java.  Primes are used in several routines in information technology, 
   such as public-key cryptography, which relies on the difficulty of factoring large numbers into their prime factors. 
   In abstract algebra, objects that behave in a generalized way like prime numbers include prime elements and prime ideals.
@@ -12,87 +12,123 @@
 
   This is the intended design for this project
   
-  ![com](imgs/comp.jpg)
+  ![com](img/arch.jpg)
  
 ## CI/CD 
 
 This project has continuos integration via 
 
-**CircleCi LoadBalancer** [![CircleCI](https://circleci.com/gh/JohanS11/LAB2-AREP.svg?style=svg)](https://app.circleci.com/pipelines/github/JohanS11/LoadBalancer)
+**CircleCi Prime finder** [![CircleCI](https://circleci.com/gh/JohanS11/LAB2-AREP.svg?style=svg)](https://app.circleci.com/pipelines/github/JohanS11/AREP_AUTOSCALABILITY)
 
-**CircleCi RESTServer** [![CircleCI](https://circleci.com/gh/JohanS11/LAB2-AREP.svg?style=svg)](https://app.circleci.com/pipelines/github/JohanS11/RESTServer)
 
-    
-### Class Diagram
-  
-  **Load Balancer**
-  
-  ![uml](imgs/classLoad.jpg)
-  
-  **REST Server**
-  
-  ![uml](imgs/classRest.jpg)
-  
-  
 ## User's guide
 
-  This is the guide that will setup this proyect at your local machine in order to be able to run it.
+  In this guide I will explain step-by-step the process to setup an auto-scaling architecture in Amazon Web Services (AWS).
   
   ### Prerequisites
   
-  It is necessary having these tools installed on your computer:
+  It is necessary having the following in order to setup this project.
   
-  * Docker
-  * Docker-compose
-  * Git
+  * An EC2 instance. I chose Amazon Linux 2 AMI (HVM), SSD Volume Type - ami-0947d2ba12ee1ff75 (64-bit x86) / ami-007a607c4abd192db (64-bit Arm).
+  * Docker-compose / Docker / Git installed in the EC2 instance.
  
-  ### Setting up this project at your local machine
+  ### Setting up this project
 
-1. **Download these docker images**
+1. **Download this docker image**
 
 ```sh
-  $ docker pull chan1100/lab5arep
-  $ docker pull chan1100/webdocker
+  $ docker pull chan1100/primefinder:latest
 ```
   
-2. **Clone this repository:** 
+2. **Execute the following commands in order to run the code** 
 
 ```sh
-  $ git clone https://github.com/JohanS11/LAB5Arep.git 
+  $ git clone https://github.com/JohanS11/AREP_AUTOSCALABILITY.git
+  $ cd AREP_AUTOSCALABILITY
+  $ ./dockerScript.sh
 ```
 
-3. **Go to the docker-compose directory**
+3. **Open the port 9001 in the security group of the EC2 instance**
 
- ```sh
-  $ cd docker-compose
-```
+4. **Verify that you have the "restart : always" in your docker-compose.yml file**
+    
+    This will help us to keep our prime finder service running after a boot in the EC2 instance.
+  
+5. **Now you should be able to see your app running on the 9001 port**
 
-4. **Execute the docker-compose.yml file**
+  ### Setting up the architecture in AWS
+ 
+1. **Create an image from the EC2 instance mentioned above**
 
- ```sh
-  $ docker-compose up -d --scale web=3
-```
+![img1](https://github.com/JohanS11/AREP_AUTOSCALABILITY/blob/main/img/create%20template%20AMI.jpg)
 
-5. **Now you should be able to see this project at http://ec2-3-82-154-139.compute-1.amazonaws.com:9001/?data=4**
+2. **Create a launch configuration** 
 
- ### Architecture Description
+  Select the image created above, the name of the cfg , the security group , the key pair, and the type of instance.
 
-   You can find the architecture description of this project at [Architecture Description](https://github.com/JohanS11/LAB5Arep/blob/master/LAB5Arep.pdf)
+  ![img2](img/lcfg.jpg)
+   
+3. **Create an AutoScaling Group**
 
-   ### Testing the application
+![img2](https://github.com/JohanS11/AREP_AUTOSCALABILITY/blob/main/img/auto-scaling%20panel.jpg)
+
+   Set the name and click the ***Switch to launch configuration*** and select the configuration created above
    
-   ***Web App running on AWS with the describedarchitecture ***
+   ![img2](img/autosc1.jpg)
    
-   ![uml](imgs/web.jpg)
+   In the section "Configure settings" select the default VPC and select 3 subnets
    
+   ![img2](https://github.com/JohanS11/AREP_AUTOSCALABILITY/blob/main/img/settings%20template.jpg)
+
+4. **Now we will set the maximum number of instances accepted in the auto scaling process (3 for this intro).**
+  **Also we'll set the maximum percentage of use of the CPU, in this case if the cpu exceeds the 50% it will activate a new instance**
+  
+![img2](https://github.com/JohanS11/AREP_AUTOSCALABILITY/blob/main/img/cpu%20trigger.jpg)
    
-   ***Load Balancing logs***
-   
-   ![uml](imgs/loadBalancing.jpg)
-   
-   ***docker images and docker container ls on the EC2 instance***
-   
-   ![uml](imgs/IMAGES.jpg)
+5. **Create a load balancer, it will handle all the requests**
+
+  For this example I chose an application load balancer 
+ 
+  ![img2](https://github.com/JohanS11/AREP_AUTOSCALABILITY/blob/main/img/select%20lb.jpg)
+  
+  Note:  Select the same VPC as the autoscalability group and mark the three subnets mentioned above.
+  
+  ![img2](https://github.com/JohanS11/AREP_AUTOSCALABILITY/blob/main/img/loadd%20balancer%20creation%201.jpg)
+  
+  ![img2](https://github.com/JohanS11/AREP_AUTOSCALABILITY/blob/main/img/availability%20z.jpg)
+  
+  Configure the routing
+  
+  ![img2](https://github.com/JohanS11/AREP_AUTOSCALABILITY/blob/main/img/route%2target.jpg)
+
+  Review
+  
+  ![img2](https://github.com/JohanS11/AREP_AUTOSCALABILITY/blob/main/img/review%20lb%20created.jpg)
+ 
+ 
+  
+6. **Add the load balancer created above to the auto scaling group created before**
+
+     ![img2](img/editag.jpg)
+
+
+ ### Testing the Architecture with Postman
+  
+  **Load Balancer Domain Name Server (DNS)**
+  
+  ![img2](img/lbt.jpg)
+  
+  **Input data page**
+  
+  ![img2](img/t1.jpg)
+  
+  **Primes found page**
+  
+  ![img2](img/t2.jpg)
+  
+ ## Charge tests 
+ 
+ 
        
   ## This project was built with:
   
