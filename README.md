@@ -95,11 +95,11 @@ This project has continuos integration via
   
   ![img2](https://github.com/JohanS11/AREP_AUTOSCALABILITY/blob/main/img/loadd%20balancer%20creation%201.jpg)
   
-  ![img2](https://github.com/JohanS11/AREP_AUTOSCALABILITY/blob/main/img/availability%20z.jpg)
+  ![img2](https://github.com/JohanS11/AREP_AUTOSCALABILITY/blob/main/img/availability%20z%20lb.jpg)
   
   Configure the routing
   
-  ![img2](https://github.com/JohanS11/AREP_AUTOSCALABILITY/blob/main/img/route%2target.jpg)
+  ![img2](https://github.com/JohanS11/AREP_AUTOSCALABILITY/blob/main/img/route%20target.jpg)
 
   Review
   
@@ -128,8 +128,36 @@ This project has continuos integration via
   
  ## Charge tests 
  
- 
-       
+   **In order to test the Architecture I generated 100 HTTP requests from Postman to the "/primes" endpoint.
+    It will calculate the primes between 1 and 50.0000  n** 
+    
+   ***Postman Request***
+    
+   ![img2](https://github.com/JohanS11/AREP_AUTOSCALABILITY/blob/main/img/postam%200.jpg)
+     
+   ***Collection runner***
+    
+  ![img2](img/postman.jpg)
+    
+   ***Results***
+   
+  ![img2](img/postman2.jpg)
+  
+  **Activity registered by the Auto Scaling Group**
+  
+  ![img2](img/agact.jpg)
+  
+  ### Monitoring graphics
+  
+  **Response time**
+  
+  ![img2](img/lbmon.jpg)
+  
+  **Number of Requests**
+  
+  ![img2](img/lbreq.jpg)
+  
+  
   ## This project was built with:
   
    - Apache Maven 3.6.3
@@ -137,46 +165,7 @@ This project has continuos integration via
    - Spark web
    - Java 1.8.0_211
    - Git 2.26.2
-   - AWS (EC2)
-   
-  ## Docker Cheat Sheet
-  
-  ***List all containers***
-  
- ```sh
-  $ docker container ls 
-  $ docker ps -a (List all containers not just running)
-```
-
-***List all images***
-  
-  ```sh
-  $ docker images  
-```
-
-***Build an image from the Dockerfile***
-  
-  ```sh
-  $ docker build -t <myimage> 
-```
-***Run a container***
-
-  ```sh
-  $ docker run -d -p <localport>:<containerport> --name firstdockercontainer <image> 
-```
-***Run a docker-compose with 3 instances of web***
-
-```sh
-  $ docker-compose up -d --scale web=3
-```
-
-***Get a shell into the container***
-
-```sh
-  $ docker exec -it <docker ID> /bin/bash
-```
-[Here is a batch scrip to reset all the stuff :=)](https://github.com/JohanS11/LAB5Arep/blob/master/docker-compose/docker-reset.sh)
-  
+   - Amazon Web Services
    
   ## Author
   
@@ -184,4 +173,4 @@ This project has continuos integration via
   
   ## License
   
-  This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](https://github.com/JohanS11/LAB2-AREP/blob/master/LICENSE) file for more details.
+  This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](https://github.com/JohanS11/AREP_AUTOSCALABILITY/blob/main/LICENSE) file for more details.
